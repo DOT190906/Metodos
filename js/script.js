@@ -2,7 +2,7 @@ let edad = parseInt(prompt("Por favor, ingresa tu edad:"));
 
 switch (true) {
     case (edad <= 17):
-        alert("Eres un niño.");
+        alert("Eres un linkniño.");
         break;
     case (edad === 18):
         alert("Eres un adolescente.");
