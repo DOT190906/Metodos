@@ -62,6 +62,25 @@ let pokedex = [
         
     }
 ];
-console.log(pokedex);
-console.log(pokedex.name);
+
+let nuevoPokemon = {
+    name: "Pikachu",
+    type: "Electrico",
+    number: 10,
+    description: "es amarillo."
+};
+
+pokedex.forEach((pokemon) => {
+    if (pokemon.name == nuevoPokemon.name) {
+        console.log("El Pokémon ya existe");
+    } else {
+        pokedex.push(nuevoPokemon);
+        console.log("El Pokémon fue agregado")
+    }
+});
+
+
+for(let i = 0; i < pokedex.length; i++){
+    console.log(pokedex[i].name);
+}
 
