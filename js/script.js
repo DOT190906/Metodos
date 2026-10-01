@@ -59,8 +59,9 @@ let pokedex = [
         type: "Agua",
         number: 9,
         description: "Los chorros de agua que lanza por los tubos de su caparazón pueden atravesar el acero."
+        
     }
 ];
 console.log(pokedex);
-console.log(pokedex[8].name);
+console.log(pokedex.name);
 
