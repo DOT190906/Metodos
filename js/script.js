@@ -1,86 +1,131 @@
-let pokedex = [
-    {
-        name: "Bulbasaur",
-        type: "Planta/Veneno",
-        number: 1,
-        description: "Después de nacer, crece alimentándose de las semillas de su lomo."
-    },
-
-    {
-        name: "Ivysaur",
-        type: "Planta/Veneno",
-        number: 2,
-        description: "Cuando el bulbo de su lomo se hincha, desprende un dulce aroma para indicar el florecimiento."
-    },
-
-    {
-        name: "Venusaur",
-        type: "Planta/Veneno",
-        number: 3,
-        description: "Después de un día de lluvia, la flor de su lomo tiene un aroma más potente y atrae a otros Pokémon."
-    },
-
-    {
-        name: "Charmander",
-        type: "Fuego",
-        number: 4,
-        description: "La llama de la punta de su cola indica su salud. Si Charmander está sano, arderá con más fuerza."
-    },
-
-    {
-        name: "Charmeleon",
-        type: "Fuego",
-        number: 5,
-        description: "En las montañas rocosas donde viven los Charmeleon, sus colas ardientes brillan como estrellas."
-    },
-
-    {
-        name: "Charizard",
-        type: "Fuego/Volador",
-        number: 6,
-        description: "Se dice que el fuego de Charizard arde con más fuerza si ha vivido duras batallas."
-    },
-
-    {
-        name: "Squirtle",
-        type: "Agua",
-        number: 7,
-        description: "Se protege con su caparazón y luego contraataca lanzando agua a presión cuando tiene oportunidad."
-    },
-
-    {
-        name: "Wartortle",
-        type: "Agua",
-        number: 8,
-        description: "Se dice que vive 10.000 años. Su peluda cola es un símbolo de longevidad."
-    },
-    {
-        name: "Blastoise",
-        type: "Agua",
-        number: 9,
-        description: "Los chorros de agua que lanza por los tubos de su caparazón pueden atravesar el acero."
-        
-    }
+let pokemons = [
+  {
+    id: 1,
+    name: "Pikachu",
+    type: "Eléctrico",
+    icon: "https://img.pokemondb.net/sprites/sun-moon/normal/pikachu-f.png",
+    image: "https://img.pokemondb.net/sprites/sun-moon/normal/pikachu-f.png",
+    description: "Cuando se enfada, este Pokémon libera inmediatamente la energía almacenada."
+  },
+  {
+    id: 2,
+    name: "Charmander",
+    type: "Fuego",
+    icon: "https://img.pokemondb.net/sprites/sun-moon/normal/charmander-f.png",
+    image: "https://img.pokemondb.net/sprites/sun-moon/normal/charmander-f.png",
+    description: "Prefiere las cosas calientes. Vapor de la punta de la cola."
+  },
+  {
+    id: 3,
+    name: "Bulbasaur",
+    type: "Planta",
+    icon: "https://img.pokemondb.net/sprites/sun-moon/normal/bulbasaur-f.png",
+    image: "https://img.pokemondb.net/sprites/sun-moon/normal/bulbasaur-f.png",
+    description: "Lleva una semilla en la espalda desde que nace."
+  }
 ];
 
-let nuevoPokemon = {
-    name: "Pikachu",
-    type: "Electrico",
-    number: 10,
-    description: "es amarillo."
-};
+let selectedPokemonId = null;
 
-pokedex.forEach((pokemon) => {
-    if (pokemon.name == nuevoPokemon.name) {
-        console.log("El Pokémon ya existe");
-    } else {
-        pokedex.push(nuevoPokemon);
-        console.log("El Pokémon fue agregado")
-    }
-});
+const pokemonGrid = document.getElementById("pokemonGrid");
+const searchInput = document.getElementById("searchInput");
+const selectedImage = document.getElementById("selectedImage");
+const selectedName = document.getElementById("selectedName");
+const selectedType = document.getElementById("selectedType");
+const selectedDescription = document.getElementById("selectedDescription");
+const deleteBtn = document.getElementById("deleteBtn");
 
+const addModal = document.getElementById("addPokemonModal");
+const closeModalBtn = document.getElementById("closeModalBtn");
+const addPokemonForm = document.getElementById("addPokemonForm");
 
-for(let i = 0; i < pokedex.length; i++){
-    console.log(pokedex[i].name);
+function renderPokemons(filterText = "") {
+  pokemonGrid.innerHTML = "";
+
+  const addCol = document.createElement("div");
+  addCol.className = "column is-4";
+  addCol.innerHTML = `
+    <div class="add-card p-3" id="openAddModalBtn">
+      <span class="is-size-3 has-text-weight-bold">+</span>
+      <p class="has-text-weight-bold">Añadir</p>
+    </div>
+  `;
+  pokemonGrid.appendChild(addCol);
+
+  document.getElementById("openAddModalBtn").addEventListener("click", () => {
+    addModal.classList.add("is-active");
+  });
+
+  const filtered = pokemons.filter(p => p.name.toLowerCase().includes(filterText.toLowerCase()));
+
+  filtered.forEach(pokemon => {
+    const col = document.createElement("div");
+    col.className = "column is-4";
+    col.innerHTML = `
+      <div class="pokemon-card" onclick="selectPokemon(${pokemon.id})">
+        <figure class="image is-square">
+          <img src="${pokemon.icon}" alt="${pokemon.name}">
+        </figure>
+        <p class="has-text-weight-bold has-text-white mt-1">${pokemon.name}</p>
+      </div>
+    `;
+    pokemonGrid.appendChild(col);
+  });
 }
 
+function selectPokemon(id) {
+  const pokemon = pokemons.find(p => p.id === id);
+  if (pokemon) {
+    selectedPokemonId = pokemon.id;
+    selectedImage.src = pokemon.image;
+    selectedName.textContent = pokemon.name;
+    selectedType.textContent = pokemon.type;
+    selectedDescription.textContent = pokemon.description;
+  }
+}
+
+deleteBtn.addEventListener("click", () => {
+  if (selectedPokemonId === null) {
+    alert("Selecciona un Pokémon para eliminar.");
+    return;
+  }
+
+  pokemons = pokemons.filter(p => p.id !== selectedPokemonId);
+  
+  selectedImage.src = "[aquí va el link o el archivo de imagen]";
+  selectedName.textContent = "Pokémon Seleccionado";
+  selectedType.textContent = "Tipo";
+  selectedDescription.textContent = "Selecciona un Pokémon para ver su descripción.";
+  selectedPokemonId = null;
+
+  renderPokemons(searchInput.value);
+});
+
+searchInput.addEventListener("input", (e) => {
+  renderPokemons(e.target.value);
+});
+
+closeModalBtn.addEventListener("click", () => {
+  addModal.classList.remove("is-active");
+  addPokemonForm.reset();
+});
+
+addPokemonForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const newPokemon = {
+    id: Date.now(),
+    name: document.getElementById("inputName").value,
+    type: document.getElementById("inputType").value,
+    icon: document.getElementById("inputIcon").value,
+    image: document.getElementById("inputGeneralImage").value,
+    description: document.getElementById("inputDescription").value
+  };
+
+  pokemons.push(newPokemon);
+  renderPokemons(searchInput.value);
+  addModal.classList.remove("is-active");
+  addPokemonForm.reset();
+});
+
+renderPokemons();

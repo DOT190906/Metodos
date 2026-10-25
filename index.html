@@ -1,10 +1,100 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <title>Javascript practice</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokédex</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <script src="js/script.js"></script>
+<body class="p-5">
+
+  <div class="container">
+    <div class="columns">
+      <div class="column is-6">
+        <div class="box left-panel p-5">
+          <div class="field mb-4">
+            <div class="control">
+              <input class="input" type="text" id="searchInput" placeholder="Búsqueda">
+            </div>
+          </div>
+
+          <div class="columns is-multiline" id="pokemonGrid">
+          </div>
+        </div>
+      </div>
+
+      <div class="column is-6">
+        <div class="box right-panel p-5">
+          <div class="selected-box has-text-centered p-5 mb-4">
+            <figure class="image is-inline-block">
+              <img id="selectedImage" src="[aquí va el link o el archivo de imagen]" alt="Pokémon Seleccionado">
+            </figure>
+            <h2 id="selectedName" class="title is-4 mt-3">Pokémon Seleccionado</h2>
+            <span id="selectedType" class="tag is-info">Tipo</span>
+          </div>
+
+          <div class="box description-box mb-4">
+            <h3 class="subtitle is-5 has-text-weight-bold">Descripción</h3>
+            <p id="selectedDescription">Selecciona un Pokémon para ver su descripción.</p>
+          </div>
+
+          <button id="deleteBtn" class="button is-danger is-fullwidth">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="addPokemonModal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Añadir Nuevo Pokémon</p>
+        <button class="delete" aria-label="close" id="closeModalBtn"></button>
+      </header>
+      <section class="modal-card-body">
+        <form id="addPokemonForm">
+          <div class="field">
+            <label class="label">Nombre</label>
+            <div class="control">
+              <input class="input" type="text" id="inputName" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Tipo</label>
+            <div class="control">
+              <input class="input" type="text" id="inputType" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Imagen de Icono</label>
+            <div class="control">
+              <input class="input" type="text" id="inputIcon" placeholder="[aquí va el link o el archivo de imagen]" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Imagen General</label>
+            <div class="control">
+              <input class="input" type="text" id="inputGeneralImage" placeholder="[aquí va el link o el archivo de imagen]" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Descripción</label>
+            <div class="control">
+              <textarea class="textarea" id="inputDescription" required></textarea>
+            </div>
+          </div>
+          
+          <button type="submit" class="button is-success is-fullwidth mt-4">Guardar</button>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
