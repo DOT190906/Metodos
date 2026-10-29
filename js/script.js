@@ -1,7 +1,5 @@
 
 "use strict";
-
-// LISTA INICIAL DE POKÉMON
 let pokemons = [
   {
     id: 1,

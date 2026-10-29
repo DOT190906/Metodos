@@ -1,192 +1,447 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Mi Pokédex</title>
-
-  <!-- Bulma -->
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
-  >
-
-  <!-- Estilos propios -->
-  <link rel="stylesheet" href="./style.css">
-
-  <!-- JavaScript -->
-  <script src="./script.js" defer></script>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --mint: #a3e4d7;
+      --slate: #85929e;
+      --slate-dark: #78868f;
+      --blue: #61bfd2;
+      --description: #89999b;
+      --danger: #ed4965;
+      --ink: #253238;
+    }
+    body {
+      margin: 0;
+      padding: 28px;
+      min-height: 100vh;
+      background: #f5f7f7;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .layout {
+      width: min(1400px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+      gap: 28px;
+      align-items: start;
+    }
+    .panel {
+      min-width: 0;
+      background: #fff;
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.08);
+    }
+    .left-panel {
+      background: var(--mint);
+      min-height: 520px;
+    }
+    .search-title {
+      margin: 0 0 18px;
+      padding: 17px 20px;
+      border-radius: 5px;
+      background: var(--slate-dark);
+      color: white;
+      font-size: 25px;
+      font-weight: 700;
+    }
+    #searchInput {
+      width: 100%;
+      padding: 12px 13px;
+      border: 1px solid #d3dadd;
+      border-radius: 6px;
+      background: white;
+      font-size: 16px;
+      outline: none;
+    }
+    #searchInput:focus, .form-control:focus {
+      border-color: #339bb0;
+      box-shadow: 0 0 0 3px rgba(51,155,176,.15);
+    }
+    .pokemon-container {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .pokemon-card {
+      min-height: 92px;
+      padding: 10px 6px;
+      border: 0;
+      border-radius: 6px;
+      background: var(--slate);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background .15s, transform .15s, box-shadow .15s;
+    }
+    .pokemon-card:hover { background: #707f8b; transform: translateY(-2px); }
+    .pokemon-card:focus-visible { outline: 3px solid #253238; outline-offset: 2px; }
+    .pokemon-card.selected { box-shadow: inset 0 0 0 4px #fff, 0 0 0 2px #52616b; }
+    .add-card {
+      background: #fff;
+      color: #263238;
+      border: 2px dashed #59666d;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .add-card:hover { background: #f1f5f5; color: #263238; }
+    .add-plus { font-size: 35px; line-height: 1; font-weight: 400; }
+    .no-results { grid-column: 1 / -1; padding: 18px 6px; text-align: center; color: #34434a; }
+    .selected-box {
+      background: var(--blue);
+      border-radius: 7px;
+      min-height: 285px;
+      padding: 25px 18px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #selectedImage {
+      display: block;
+      max-width: 100%;
+      width: auto;
+      height: 165px;
+      object-fit: contain;
+      margin: 0 auto 12px;
+    }
+    #selectedImage[hidden] { display: none; }
+    #selectedName { margin: 8px 0 12px; font-size: 27px; overflow-wrap: anywhere; }
+    .tag { display: inline-block; padding: 7px 12px; background: #268bb7; color: #fff; border-radius: 5px; font-size: 14px; }
+    .description-box {
+      margin: 22px 0 18px;
+      padding: 22px;
+      min-height: 120px;
+      background: var(--description);
+      color: #fff;
+      border-radius: 7px;
+    }
+    .description-box h3 { margin: 0 0 18px; font-size: 22px; }
+    .description-box p { margin: 0; line-height: 1.5; overflow-wrap: anywhere; }
+    button { font: inherit; }
+    .delete-button {
+      width: 100%;
+      border: 0;
+      border-radius: 5px;
+      background: var(--danger);
+      color: white;
+      padding: 13px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .delete-button:hover { background: #d93653; }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      inset: 0;
+      padding: 20px;
+      background: rgba(20,30,35,.55);
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+    }
+    .modal.open { display: flex; }
+    .modal-card {
+      width: min(520px, 100%);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 35px rgba(0,0,0,.2);
+    }
+    .modal-header {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px;
+      background: var(--mint);
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .close-button {
+      border: 0;
+      background: transparent;
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .modal-body { padding: 22px; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; margin-bottom: 7px; font-weight: 700; }
+    .form-control {
+      display: block;
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #cbd3d8;
+      border-radius: 5px;
+      font: inherit;
+      outline: none;
+    }
+    textarea.form-control { min-height: 100px; resize: vertical; }
+    .help { margin-top: 6px; color: #627078; font-size: 12px; }
+    .save-button {
+      width: 100%;
+      border: 0;
+      border-radius: 5px;
+      background: #249d68;
+      color: white;
+      padding: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .save-button:hover { background: #1d8156; }
+    @media (max-width: 800px) {
+      body { padding: 14px; }
+      .layout { grid-template-columns: 1fr; gap: 18px; }
+      .panel { padding: 17px; }
+      .left-panel { min-height: auto; }
+    }
+    @media (max-width: 420px) {
+      .pokemon-container { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .search-title { font-size: 21px; }
+    }
+  </style>
 </head>
-
 <body>
-  <div class="container">
-    <div class="columns is-variable is-5">
+  <main class="layout">
+    <section class="panel left-panel" aria-label="Selector de Pokémon">
+      <h1 class="search-title">Búsqueda</h1>
+      <input id="searchInput" type="search" placeholder="Buscar Pokémon..." autocomplete="off" aria-label="Buscar Pokémon">
+      <div class="pokemon-container" id="pokemonGrid"></div>
+    </section>
 
-      <!-- PANEL IZQUIERDO: BUSCADOR Y LISTA -->
-      <div class="column is-6">
-        <div class="box left-panel">
-
-          <div class="field">
-            <label class="label" for="searchInput">Búsqueda</label>
-            <div class="control">
-              <input
-                class="input"
-                type="text"
-                id="searchInput"
-                placeholder="Buscar Pokémon..."
-                autocomplete="off"
-              >
-            </div>
-          </div>
-
-          <!-- Aquí aparecerán los recuadros -->
-          <div class="pokemon-container" id="pokemonGrid"></div>
-
-        </div>
+    <section class="panel right-panel" aria-label="Detalle del Pokémon">
+      <div class="selected-box">
+        <img id="selectedImage" src="" alt="Imagen del Pokémon seleccionado" hidden>
+        <h2 id="selectedName">Pokémon Seleccionado</h2>
+        <span class="tag" id="selectedType">Tipo</span>
       </div>
-
-      <!-- PANEL DERECHO: POKÉMON SELECCIONADO -->
-      <div class="column is-6">
-        <div class="box right-panel">
-
-          <div class="selected-box has-text-centered">
-            <figure class="image selected-image-container">
-              <img
-                id="selectedImage"
-                src=""
-                alt="Pokémon seleccionado"
-                hidden
-              >
-            </figure>
-
-            <h2 id="selectedName" class="title is-4 mt-3">
-              Pokémon Seleccionado
-            </h2>
-
-            <span id="selectedType" class="tag is-info">
-              Tipo
-            </span>
-          </div>
-
-          <div class="box description-box">
-            <h3 class="subtitle is-5 has-text-weight-bold">
-              Descripción
-            </h3>
-
-            <p id="selectedDescription">
-              Selecciona un Pokémon para ver su descripción.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            id="deleteBtn"
-            class="button is-danger is-fullwidth"
-          >
-            Eliminar
-          </button>
-
-        </div>
+      <div class="description-box">
+        <h3>Descripción</h3>
+        <p id="selectedDescription">Selecciona un Pokémon para ver su descripción.</p>
       </div>
+      <button class="delete-button" id="deleteBtn" type="button">Eliminar</button>
+    </section>
+  </main>
 
-    </div>
-  </div>
-
-  <!-- VENTANA PARA AÑADIR POKÉMON -->
-  <div class="modal" id="addPokemonModal">
-
-    <div class="modal-background" id="modalBackground"></div>
-
+  <div class="modal" id="addPokemonModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
-
-      <header class="modal-card-head">
-        <p class="modal-card-title">Añadir nuevo Pokémon</p>
-
-        <button
-          type="button"
-          class="delete"
-          aria-label="Cerrar"
-          id="closeModalBtn"
-        ></button>
+      <header class="modal-header">
+        <span id="modalTitle">Añadir nuevo Pokémon</span>
+        <button type="button" class="close-button" id="closeModalBtn" aria-label="Cerrar ventana">×</button>
       </header>
-
-      <section class="modal-card-body">
-
+      <div class="modal-body">
         <form id="addPokemonForm">
-
           <div class="field">
-            <label class="label" for="inputName">Nombre</label>
-            <div class="control">
-              <input
-                class="input"
-                type="text"
-                id="inputName"
-                placeholder="Ej. Eevee"
-                required
-              >
-            </div>
+            <label for="inputName">Nombre</label>
+            <input class="form-control" type="text" id="inputName" placeholder="Ej. Eevee" required>
           </div>
-
           <div class="field">
-            <label class="label" for="inputType">Tipo</label>
-            <div class="control">
-              <input
-                class="input"
-                type="text"
-                id="inputType"
-                placeholder="Ej. Normal"
-                required
-              >
-            </div>
+            <label for="inputType">Tipo</label>
+            <input class="form-control" type="text" id="inputType" placeholder="Ej. Normal" required>
           </div>
-
           <div class="field">
-            <label class="label" for="inputGeneralImage">
-              Imagen (URL o ruta del archivo)
-            </label>
-
-            <div class="control">
-              <input
-                class="input"
-                type="text"
-                id="inputGeneralImage"
-                placeholder="https://static.wikia.nocookie.net/espokemon/images/2/21/Imagen_Pt.png/revision/latest?cb=20170317021908"
-              >
-            </div>
-
-            <p class="help">
-              La imagen es opcional. Puedes añadirla después.
-            </p>
+            <label for="inputGeneralImage">Imagen (URL o ruta del archivo)</label>
+            <input class="form-control" type="text" id="inputGeneralImage" placeholder="https://... o images/eevee.png">
+            <p class="help">Este campo es opcional. El menú funciona sin imágenes.</p>
           </div>
-
           <div class="field">
-            <label class="label" for="inputDescription">
-              Descripción
-            </label>
-
-            <div class="control">
-              <textarea
-                class="textarea"
-                id="inputDescription"
-                placeholder="Escribe la descripción del Pokémon..."
-                required
-              ></textarea>
-            </div>
+            <label for="inputDescription">Descripción</label>
+            <textarea class="form-control" id="inputDescription" placeholder="Descripción del Pokémon" required></textarea>
           </div>
-
-          <button
-            type="submit"
-            class="button is-success is-fullwidth mt-4"
-          >
-            Guardar Pokémon
-          </button>
-
+          <button class="save-button" type="submit">Guardar Pokémon</button>
         </form>
-
-      </section>
+      </div>
     </div>
   </div>
+
+  <script>
+    "use strict";
+
+    let pokemons = [
+      {
+        id: 1,
+        name: "Pikachu",
+        type: "Eléctrico",
+        image: "https://img.pokemondb.net/sprites/x-y/normal/pikachu-f.png",
+        description: "Cuando se enfada, este Pokémon libera inmediatamente la energía almacenada."
+      },
+      {
+        id: 2,
+        name: "Charmander",
+        type: "Fuego",
+        image: "https://img.pokemondb.net/sprites/x-y/normal/charmander.png",
+        description: "La llama de la punta de su cola indica su estado de ánimo y su salud."
+      },
+      {
+        id: 3,
+        name: "Bulbasaur",
+        type: "Planta/Veneno",
+        image: "https://img.pokemondb.net/sprites/x-y/normal/bulbasaur.png",
+        description: "Lleva una semilla en la espalda desde que nace."
+      }
+    ];
+
+    let selectedPokemonId = null;
+
+    const pokemonGrid = document.getElementById("pokemonGrid");
+    const searchInput = document.getElementById("searchInput");
+    const selectedImage = document.getElementById("selectedImage");
+    const selectedName = document.getElementById("selectedName");
+    const selectedType = document.getElementById("selectedType");
+    const selectedDescription = document.getElementById("selectedDescription");
+    const deleteBtn = document.getElementById("deleteBtn");
+    const addModal = document.getElementById("addPokemonModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const addPokemonForm = document.getElementById("addPokemonForm");
+    const inputName = document.getElementById("inputName");
+    const inputType = document.getElementById("inputType");
+    const inputGeneralImage = document.getElementById("inputGeneralImage");
+    const inputDescription = document.getElementById("inputDescription");
+
+    function renderPokemons(filterText = "") {
+      pokemonGrid.replaceChildren();
+      const query = filterText.trim().toLocaleLowerCase("es");
+      const filtered = pokemons.filter(p => p.name.toLocaleLowerCase("es").includes(query));
+
+      filtered.forEach(pokemon => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "pokemon-card";
+        if (pokemon.id === selectedPokemonId) card.classList.add("selected");
+        card.textContent = pokemon.name;
+        card.setAttribute("aria-label", "Seleccionar " + pokemon.name);
+        card.addEventListener("click", () => selectPokemon(pokemon.id));
+        pokemonGrid.appendChild(card);
+      });
+
+      if (filtered.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "no-results";
+        empty.textContent = "No se encontraron Pokémon con ese nombre.";
+        pokemonGrid.appendChild(empty);
+      }
+
+      const addCard = document.createElement("button");
+      addCard.type = "button";
+      addCard.className = "pokemon-card add-card";
+      addCard.innerHTML = '<span class="add-plus" aria-hidden="true">+</span><span>Añadir</span>';
+      addCard.addEventListener("click", openAddModal);
+      pokemonGrid.appendChild(addCard);
+    }
+
+    function selectPokemon(id) {
+      const pokemon = pokemons.find(p => p.id === id);
+      if (!pokemon) return;
+
+      selectedPokemonId = pokemon.id;
+      selectedName.textContent = pokemon.name;
+      selectedType.textContent = pokemon.type;
+      selectedDescription.textContent = pokemon.description;
+
+      selectedImage.onerror = () => {
+        selectedImage.hidden = true;
+        selectedImage.removeAttribute("src");
+      };
+
+      if (pokemon.image && pokemon.image.trim()) {
+        selectedImage.hidden = false;
+        selectedImage.src = pokemon.image.trim();
+      } else {
+        selectedImage.hidden = true;
+        selectedImage.removeAttribute("src");
+      }
+      renderPokemons(searchInput.value);
+    }
+
+    function resetSelection() {
+      selectedPokemonId = null;
+      selectedImage.hidden = true;
+      selectedImage.removeAttribute("src");
+      selectedName.textContent = "Pokémon Seleccionado";
+      selectedType.textContent = "Tipo";
+      selectedDescription.textContent = "Selecciona un Pokémon para ver su descripción.";
+      renderPokemons(searchInput.value);
+    }
+
+    function openAddModal() {
+      addModal.classList.add("open");
+      inputName.focus();
+    }
+
+    function closeAddModal() {
+      addModal.classList.remove("open");
+      addPokemonForm.reset();
+    }
+
+    searchInput.addEventListener("input", () => renderPokemons(searchInput.value));
+    closeModalBtn.addEventListener("click", closeAddModal);
+
+    addModal.addEventListener("click", event => {
+      if (event.target === addModal) closeAddModal();
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && addModal.classList.contains("open")) closeAddModal();
+    });
+
+    deleteBtn.addEventListener("click", () => {
+      if (selectedPokemonId === null) {
+        alert("Primero selecciona un Pokémon para eliminar.");
+        return;
+      }
+      const pokemon = pokemons.find(p => p.id === selectedPokemonId);
+      if (!pokemon) return;
+      if (!confirm("¿Seguro que deseas eliminar a " + pokemon.name + "?")) return;
+      pokemons = pokemons.filter(p => p.id !== selectedPokemonId);
+      resetSelection();
+    });
+
+    addPokemonForm.addEventListener("submit", event => {
+      event.preventDefault();
+      const name = inputName.value.trim();
+      const type = inputType.value.trim();
+      const image = inputGeneralImage.value.trim();
+      const description = inputDescription.value.trim();
+
+      if (!name || !type || !description) {
+        alert("Completa el nombre, el tipo y la descripción.");
+        return;
+      }
+      if (pokemons.some(p => p.name.toLocaleLowerCase("es") === name.toLocaleLowerCase("es"))) {
+        alert("Ya existe un Pokémon con ese nombre.");
+        return;
+      }
+
+      const newPokemon = {
+        id: Date.now(),
+        name,
+        type,
+        image,
+        description
+      };
+      pokemons.push(newPokemon);
+      closeAddModal();
+      searchInput.value = "";
+      selectPokemon(newPokemon.id);
+    });
+    renderPokemons();
+  </script>
 </body>
 </html>
